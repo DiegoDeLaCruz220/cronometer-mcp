@@ -1143,7 +1143,13 @@ def main():
     transport = os.environ.get("MCP_TRANSPORT", "stdio")
     if transport == "sse":
         port = int(os.environ.get("PORT", "8080"))
-        mcp.run(transport="sse", host="0.0.0.0", port=port)
+        # FastMCP.run() does not accept host/port — configure via settings instead.
+        # Also clear transport_security: the default localhost binding auto-enables
+        # DNS rebinding protection that would reject requests from Railway's proxy.
+        mcp.settings.host = "0.0.0.0"
+        mcp.settings.port = port
+        mcp.settings.transport_security = None
+        mcp.run(transport="sse")
     else:
         mcp.run(transport="stdio")
 
